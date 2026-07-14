@@ -633,11 +633,11 @@ function initIntroScreen(onEnter) {
    something is unusually slow to settle.
    ============================================================ */
 const CRITICAL_IMAGES = [
-  "./assets/wallpaper.png",
-  "./assets/messenger-sprite.png",
-  "./assets/messaggero-2.png",
-  "./assets/parchment-light.png",
-  "./assets/parchment-dark.png",
+  "./assets/wallpaper.jpg",
+  "./assets/messenger-sprite.webp",
+  "./assets/messaggero-2.webp",
+  "./assets/parchment-light.jpg",
+  "./assets/parchment-dark.jpg",
 ];
 
 const CRITICAL_FONTS = [
