@@ -6,18 +6,18 @@
 /* ---------- Configuration ---------- */
 
 const DIALOGUE_LINES = Object.freeze([
-  "Mentre ti riposi in una calda giornata sule prime dune del deserto, il bollente vento sul viso, noti uno strano individuo correre verso di te.",
-  "Hai la faccia di uno svelto. Sei come mi avevano detto, ti avrei riconosciuto anche in una tempesta di sabbia.",
+  "Mentre ti riposi in una calda giornata sulle prime dune del deserto... il bollente vento sul viso... noti uno strano individuo correre verso di te.",
+  "Hai davvero la faccia di uno svelto! Sei come mi avevano detto, ti avrei riconosciuto anche in una tempesta di sabbia",
   "Porto con me un decreto dal palazzo reale di Nevjan al Rubin...",
   "Dovresti essere molto onorato...",
-  "O forse spaventato... Al destino l'ultima parola.",
+  "O forse spaventato... Al destino l'ultima parola",
   "E' una lettera molto importante, mi raccomandano di non aprirla davanti ad amici o fratelli...",
-  "Rischiereste guai seri, a Nevjan al Rubin non scherzano con le minacce.",
-  "E sopratutto non posso consegnarlo a chiunque, il mio istinto non basta. ",
+  "Rischiereste guai seri, a Nevjan al Rubin non scherzano mai con le minacce",
+  "E sopratutto non posso consegnarlo a chiunque, il mio istinto non basta",
   "Dichiara il tuo nome e cognome, giovane del deserto.",
 ]);
 
-const TYPE_SPEED_MS = 32; // per-character delay while typing
+const TYPE_SPEED_MS = 38; // per-character delay while typing
 const FADE_DURATION_MS = 1400; // must match --fade-duration in style.css
 const ERROR_DISPLAY_MS = 2600; // how long the "name not found" state lingers
 const LOADING_FADE_MS = 800; // must match .loading-screen's opacity transition
@@ -132,7 +132,7 @@ const playerRegistry = Object.freeze({
   "lorenzo emanuel": "ladrone",
   "matilde reggiani": "ladrone",
   "mattia marrara": "ladrone",
-  "alessia nizzoli": "ladrone",
+  "alessia nizzola": "ladrone",
   "adriano sanchez zegarra": "ladrone",
   "emilia ballestrazzi": "ladrone",
 });
