@@ -619,26 +619,64 @@ function initIntroScreen(onEnter) {
 /* ============================================================
    Loading Screen
    ------------------------------------------------------------
-   Waits for both the window's "load" event (images, the <link
-   rel="preload"> assets, stylesheets, scripts) and web fonts, then
-   fades the cover out. A safety timeout guarantees it never gets
-   stuck forever if something is unusually slow to settle.
+   window.load and document.fonts.ready both turned out unreliable
+   here: CSS background-images on elements that start display:none
+   (the letter's two parchment textures) are often never requested
+   by the browser until that element becomes visible, even with a
+   <link rel="preload"> hint, and @font-face files are normally
+   fetched lazily — only once something on screen actually needs to
+   render text with them. Either can let those promises resolve
+   before the asset is actually in hand. So instead we explicitly
+   fetch every image ourselves and force-trigger every font via
+   document.fonts.load(), and wait on those concrete promises.
+   A safety timeout guarantees it never gets stuck forever if
+   something is unusually slow to settle.
    ============================================================ */
+const CRITICAL_IMAGES = [
+  "./assets/wallpaper.png",
+  "./assets/messenger-sprite.png",
+  "./assets/messaggero-2.png",
+  "./assets/parchment-light.png",
+  "./assets/parchment-dark.png",
+];
+
+const CRITICAL_FONTS = [
+  '500 1em "Cinzel"',
+  '600 1em "Cinzel"',
+  '700 1em "Cinzel"',
+  '400 1em "Kultum Ramadhan"',
+  '400 1em "Mrs Saint Delafield"',
+];
+
+function loadImage(src) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => resolve();
+    img.onerror = () => resolve(); // one bad asset shouldn't hang the whole screen
+    img.src = src;
+  });
+}
+
 function initLoadingScreen() {
   const loadingScreen = document.getElementById("loading-screen");
   if (!loadingScreen) return;
 
-  const whenWindowLoaded = new Promise((resolve) => {
-    if (document.readyState === "complete") resolve();
-    else window.addEventListener("load", () => resolve(), { once: true });
-  });
+  const whenImagesLoaded = Promise.all(CRITICAL_IMAGES.map(loadImage));
 
-  const whenFontsReady = document.fonts ? document.fonts.ready : Promise.resolve();
+  // document.fonts.load() rejects on a failed fetch (unlike loadImage()'s
+  // onerror above) — catch per-font so one bad request can't reject the
+  // whole Promise.all and, with it, the race below (a rejection settles
+  // Promise.race immediately, bypassing the safety timeout entirely).
+  const whenFontsReady = document.fonts
+    ? Promise.all(
+        CRITICAL_FONTS.map((font) => document.fonts.load(font).catch(() => {}))
+      ).then(() => document.fonts.ready)
+    : Promise.resolve();
 
   const whenReady = Promise.race([
-    Promise.all([whenWindowLoaded, whenFontsReady]),
+    Promise.all([whenImagesLoaded, whenFontsReady]),
     new Promise((resolve) => setTimeout(resolve, LOADING_SAFETY_TIMEOUT_MS)),
-  ]);
+  ]).catch(() => {}); // belt-and-suspenders: never let a stray rejection hang this
 
   whenReady.then(() => {
     loadingScreen.classList.add("is-hidden");
