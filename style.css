@@ -1,0 +1,771 @@
+/* ============================================================
+   Royal Decree of Agrabah — Core Styles
+   ============================================================ */
+
+@font-face {
+  font-family: "Kultum Ramadhan";
+  src: url("./assets/Kultum%20Ramadhan.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --ink: #f4e9d0;
+  --ink-dim: #cbb78d;
+  --gold: #d9b45a;
+  --gold-bright: #f6d98a;
+  --shadow-deep: rgba(0, 0, 0, 0.85);
+  --fade-duration: 1400ms;
+  --box-bg: rgba(18, 12, 6, 0.62);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  background: #000;
+  overflow: hidden;
+  font-family: "Cinzel", Georgia, serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* ============================================================
+   App container — the whole stage
+   ============================================================ */
+#app-container {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  background: #000;
+
+  /* Persistent wallpaper — lives behind every view and never
+     fades or reloads during view transitions. */
+  background-image: url("./assets/wallpaper.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+/* ============================================================
+   View Manager
+   ============================================================ */
+.view {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 1;
+  transition: opacity var(--fade-duration) ease-in-out;
+}
+
+/* .hidden is toggled by JS. We keep it display:none once faded out
+   so hidden views never intercept clicks. The .is-fading helper lets
+   us animate opacity before display flips. */
+.view.hidden {
+  display: none;
+}
+
+.view.is-fading {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ============================================================
+   Portrait orientation blocker
+   ============================================================ */
+#portrait-warning {
+  display: none;
+}
+
+@media screen and (orientation: portrait) {
+  #app-container {
+    display: none !important;
+  }
+
+  #portrait-warning {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    text-align: center;
+    background: #000;
+    color: var(--ink);
+  }
+
+  .portrait-warning__inner {
+    max-width: 22rem;
+  }
+
+  .portrait-warning__icon {
+    font-size: 3.5rem;
+    color: var(--gold);
+    margin-bottom: 1.25rem;
+    animation: rotate-hint 2.4s ease-in-out infinite;
+  }
+
+  #portrait-warning p {
+    font-family: "Cinzel", serif;
+    font-size: 1.15rem;
+    font-weight: 500;
+    line-height: 1.6;
+    letter-spacing: 0.02em;
+  }
+}
+
+@keyframes rotate-hint {
+  0%,
+  60% {
+    transform: rotate(0deg);
+  }
+  80% {
+    transform: rotate(-90deg);
+  }
+  100% {
+    transform: rotate(-90deg);
+  }
+}
+
+/* ============================================================
+   Title Screen — #view-intro
+   ------------------------------------------------------------
+   Opaque black/radial background deliberately overrides the
+   app-level wallpaper so nothing competes with the gold title.
+   ============================================================ */
+/* :not(.hidden) keeps this from out-specificity-ing .view.hidden's
+   display:none (an ID selector otherwise always beats two classes,
+   which is why the intro used to linger behind the dialogue view). */
+#view-intro:not(.hidden) {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  /* Semi-transparent so the app-level wallpaper still shows through,
+     while staying dark enough to keep the gold title readable. */
+  background: radial-gradient(
+    ellipse at center,
+    rgba(8, 8, 8, 0.55) 0%,
+    rgba(0, 0, 0, 0.8) 100%
+  );
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: pointer;
+}
+
+.intro-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.intro-title {
+  font-family: "Kultum Ramadhan", cursive;
+  font-weight: 400;
+  font-style: normal;
+
+  font-size: clamp(8rem, 5vw, 8rem);
+  letter-spacing: 0.05em;
+  text-align: center;
+
+  /* Polished-gold fill */
+  background: linear-gradient(
+    to right,
+    #bf953f,
+    #fcf6ba,
+    #b38728,
+    #fbf5b7,
+    #aa771c
+  );
+  background-size: 200% auto;
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+
+  /* text-shadow doesn't render on clipped-text fills reliably, so the
+     drop-shadow filter lifts the gold off the black background instead. */
+  filter: drop-shadow(0px 4px 6px rgba(0, 0, 0, 0.8));
+
+  animation: shine 4s linear infinite;
+}
+
+@keyframes shine {
+  to {
+    background-position: 200% center;
+  }
+}
+
+.intro-subtitle {
+  font-family: "Kultum Ramadhan", cursive;
+  font-weight: 400;
+  font-size: clamp(2.2rem, 4.8vw, 3.2rem);
+  letter-spacing: 1px;
+
+  /* Same shine technique as .intro-title, silver stops instead of gold. */
+  background: linear-gradient(
+    to right,
+    #8e9196,
+    #f6f6f8,
+    #b9bcc1,
+    #ffffff,
+    #9a9da2
+  );
+  background-size: 200% auto;
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0px 3px 5px rgba(0, 0, 0, 0.75));
+  animation: shine 4s linear infinite;
+
+  /* Relative offset only — shifts it up visually without disturbing
+     the quote's position, since the space it occupies in the flex
+     flow (and therefore the quote below it) doesn't change. */
+  position: relative;
+  top: -2rem;
+}
+
+.intro-quote {
+  font-family: "Cinzel", serif;
+  font-weight: 500;
+  font-style: italic;
+  font-size: clamp(1.1rem, 2.6vw, 1.5rem);
+  color: #e8e8ec;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.85);
+  margin-top: 0.4rem;
+
+  /* Hidden on load; .is-visible is added on the player's first click
+     and eases in slowly instead of popping in with the rest. */
+  opacity: 0;
+  transition: opacity 3s ease;
+}
+
+.intro-quote.is-visible {
+  opacity: 1;
+}
+
+.intro-prompt {
+  position: absolute;
+  bottom: 6vh;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: "Cinzel", serif;
+  font-size: clamp(0.85rem, 1.8vw, 1.05rem);
+  letter-spacing: 0.08em;
+  color: var(--ink-dim);
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.85);
+  animation: pulse-fade 2.2s ease-in-out infinite;
+}
+
+@keyframes pulse-fade {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* ============================================================
+   Dialogue View — sits on top of the persistent app wallpaper,
+   with its own vignette to focus the eye toward the centre.
+   ============================================================ */
+#view-dialogue {
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: pointer;
+}
+
+/* Radial vignette overlay to focus the eye toward the centre */
+.vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(0, 0, 0, 0) 40%,
+    rgba(0, 0, 0, 0.35) 72%,
+    rgba(0, 0, 0, 0.78) 100%
+  );
+  /* Layered inset shadow deepens the frame edges */
+  box-shadow: inset 0 0 12vw 4vw rgba(0, 0, 0, 0.55);
+}
+
+/* ============================================================
+   Character sprite — breathing / floating idle
+   ============================================================ */
+.sprite {
+  position: absolute;
+  bottom: -50%;
+  left: 65%;
+  height: 150vh;
+  transform: translateX(-50%);
+  transform-origin: bottom center;
+  filter: drop-shadow(0 24px 30px rgba(0, 0, 0, 0.6));
+  pointer-events: none;
+  user-select: none;
+  opacity: 1;
+  transition: opacity 500ms ease;
+  animation: breathe 5s ease-in-out infinite;
+  will-change: transform;
+}
+
+/* Used for the sprite-less narration line that opens the dialogue. */
+.sprite.is-hidden {
+  opacity: 0;
+}
+
+/* Fast fade-out/fade-in for the portrait alternation on each advance
+   click — overrides just the duration, reusing .is-hidden's opacity:0
+   for the actual fade so the same transition drives both swap and
+   narration-reveal, just at different speeds. */
+.sprite.is-swap-fading {
+  transition-duration: 150ms;
+}
+
+@keyframes breathe {
+  0% {
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
+  50% {
+    transform: translateX(-50%) translateY(-1.4%) scale(1.012);
+  }
+  100% {
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
+}
+
+/* ============================================================
+   Dialogue box
+   ============================================================ */
+.dialogue-box {
+  position: absolute;
+  bottom: 4vh;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(88%, 900px);
+  min-height: 22vh;
+  padding: 1.8rem 2.4rem 2.2rem;
+
+  background: var(--box-bg);
+  backdrop-filter: blur(10px) saturate(120%);
+  -webkit-backdrop-filter: blur(10px) saturate(120%);
+  border-radius: 14px;
+
+  /* Ornate frame built from layered box-shadows: a bright gold inner
+     hairline, a dark bevel, and an outward glow — reads as an
+     engraved metal border without needing a rigid border-image. */
+  border: 1px solid rgba(217, 180, 90, 0.55);
+  box-shadow:
+    inset 0 0 0 1px rgba(246, 217, 138, 0.35),
+    inset 0 0 22px rgba(0, 0, 0, 0.65),
+    0 0 0 2px rgba(0, 0, 0, 0.6),
+    0 18px 40px rgba(0, 0, 0, 0.65),
+    0 0 26px rgba(217, 180, 90, 0.18);
+
+  user-select: none;
+  -webkit-user-select: none;
+  z-index: 5;
+}
+
+/* Optional: swap the box-shadow frame for an image frame by adding
+   the .dialogue-box--image class in HTML.
+   border-image is intentionally kept as an opt-in because it is rigid. */
+.dialogue-box--image {
+  border-style: solid;
+  border-width: 22px;
+  border-image-source: url("./assets/dialog-border.png");
+  border-image-slice: 30 fill;
+  border-image-repeat: round;
+  border-radius: 0;
+}
+
+.dialogue-box__text {
+  font-family: "Cinzel", serif;
+  font-weight: 600;
+  font-size: clamp(1.05rem, 2.4vw, 1.6rem);
+  line-height: 1.55;
+  letter-spacing: 0.02em;
+  color: var(--ink);
+  text-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.9),
+    0 0 14px rgba(0, 0, 0, 0.6);
+  min-height: 1.55em;
+}
+
+/* Opening narration line, shown before the messenger appears */
+.dialogue-box__text.is-narration {
+  font-style: italic;
+}
+
+/* The typewriter caret — a soft trailing glow while typing */
+.dialogue-box__text.is-typing::after {
+  content: "▌";
+  margin-left: 0.06em;
+  color: var(--gold-bright);
+  opacity: 0.85;
+  animation: caret-blink 0.8s steps(1) infinite;
+}
+
+@keyframes caret-blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+/* ============================================================
+   "Next" indicator — blinking downward triangle
+   ============================================================ */
+.next-indicator {
+  position: absolute;
+  right: 1.6rem;
+  bottom: 1rem;
+  width: 0;
+  height: 0;
+  border-left: 0.7rem solid transparent;
+  border-right: 0.7rem solid transparent;
+  border-top: 0.9rem solid var(--gold-bright);
+  filter: drop-shadow(0 0 6px rgba(246, 217, 138, 0.6));
+  opacity: 0;
+  transform: translateY(0);
+}
+
+.next-indicator.is-visible {
+  animation: next-bounce 1.1s ease-in-out infinite;
+}
+
+@keyframes next-bounce {
+  0%,
+  100% {
+    opacity: 0.25;
+    transform: translateY(0);
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(5px);
+  }
+}
+
+/* ============================================================
+   Name input injection
+   ============================================================ */
+.name-prompt {
+  display: flex;
+  gap: 0.9rem;
+  align-items: center;
+  flex-wrap: wrap;
+  animation: fade-in-up 420ms ease-out both;
+}
+
+.name-prompt__input {
+  flex: 1 1 240px;
+  min-width: 0;
+  padding: 0.7rem 1rem;
+  font-family: "Cinzel", serif;
+  font-size: clamp(1rem, 2vw, 1.3rem);
+  font-weight: 600;
+  color: var(--ink);
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(217, 180, 90, 0.6);
+  border-radius: 8px;
+  outline: none;
+  transition: border-color 200ms ease, box-shadow 200ms ease;
+}
+
+.name-prompt__input::placeholder {
+  color: var(--ink-dim);
+  opacity: 0.7;
+}
+
+.name-prompt__input:focus {
+  border-color: var(--gold-bright);
+  box-shadow: 0 0 0 2px rgba(246, 217, 138, 0.25), inset 0 0 10px rgba(0, 0, 0, 0.6);
+}
+
+.name-prompt__submit {
+  padding: 0.7rem 1.6rem;
+  font-family: "Cinzel", serif;
+  font-size: clamp(0.95rem, 1.8vw, 1.2rem);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #1a1206;
+  cursor: pointer;
+  background: linear-gradient(180deg, var(--gold-bright), var(--gold));
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 8px;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.3);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  transition: transform 120ms ease, filter 160ms ease;
+}
+
+.name-prompt__submit:hover {
+  filter: brightness(1.08);
+}
+
+.name-prompt__submit:active {
+  transform: translateY(1px);
+}
+
+.name-prompt__submit:disabled {
+  filter: grayscale(0.7) brightness(0.8);
+  cursor: not-allowed;
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ---------- Error state: name not found ---------- */
+.name-prompt__input.has-error {
+  border-color: #e05252;
+  box-shadow:
+    0 0 0 2px rgba(224, 82, 82, 0.35),
+    inset 0 0 10px rgba(80, 0, 0, 0.35);
+}
+
+.name-prompt__error {
+  flex-basis: 100%;
+  font-family: "Cinzel", serif;
+  font-weight: 600;
+  font-size: clamp(0.85rem, 1.6vw, 1rem);
+  color: #ff6b6b;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.85);
+  opacity: 0;
+  transform: translateY(-4px);
+  transition: opacity 220ms ease, transform 220ms ease;
+}
+
+.name-prompt__error.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Dialogue box shake — reuses the box's own centering transform so
+   the jitter doesn't knock it off its translateX(-50%) anchor. */
+.dialogue-box.is-shaking {
+  animation: box-shake 500ms cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+@keyframes box-shake {
+  10%,
+  90% {
+    transform: translateX(-50%) translate3d(-1px, 0, 0);
+  }
+  20%,
+  80% {
+    transform: translateX(-50%) translate3d(2px, 0, 0);
+  }
+  30%,
+  50%,
+  70% {
+    transform: translateX(-50%) translate3d(-4px, 0, 0);
+  }
+  40%,
+  60% {
+    transform: translateX(-50%) translate3d(4px, 0, 0);
+  }
+  100% {
+    transform: translateX(-50%) translate3d(0, 0, 0);
+  }
+}
+
+/* ============================================================
+   Letter View — the parchment artifact
+   ============================================================ */
+/* :not(.hidden) keeps this from out-specificity-ing .view.hidden's
+   display:none (an ID selector otherwise always beats two classes). */
+/* The view itself scrolls (not the parchment box) — the parchment
+   grows to fit its actual content, so its background always covers
+   the full letter no matter how long the text is. `safe center`
+   keeps short letters centered but falls back to top-alignment for
+   long ones, so nothing above the fold ever gets clipped. */
+#view-letter:not(.hidden) {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: safe center;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 4vh 4vw;
+
+  /* Scrim lives directly on the scrolling element itself, with
+     background-attachment: local — that makes its painting area
+     the full scrollable content instead of just the viewport, so
+     it no longer stops partway down on long letters. White for the
+     "good" letters (mercante/nobile), overridden to black below for
+     the "evil" ones (serpente/ladrone via .theme-dark). */
+  background: radial-gradient(
+    ellipse at center,
+    rgba(255, 255, 255, 0.5) 0%,
+    rgba(255, 255, 255, 0.82) 100%
+  );
+  background-attachment: local;
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+
+  scrollbar-width: thin;
+  scrollbar-color: rgba(184, 134, 11, 0.55) transparent;
+}
+
+#view-letter:not(.hidden)::-webkit-scrollbar {
+  width: 8px;
+}
+
+#view-letter:not(.hidden)::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+#view-letter:not(.hidden)::-webkit-scrollbar-thumb {
+  background-color: rgba(184, 134, 11, 0.55);
+  border-radius: 4px;
+}
+
+.parchment-container {
+  position: relative;
+  z-index: 1;
+  flex: none;
+  max-width: 750px;
+  width: 90%;
+  /* No max-height/overflow here — the box grows to fit however much
+     text it holds, and #view-letter (above) is what scrolls. min-height
+     just keeps short letters from looking like a scrap of paper. */
+  min-height: 50vh;
+  margin: 5vh auto;
+  padding: 3rem 4rem;
+
+  /* Seamless tile, not a stretched cover image — since the box's
+     height is fully dynamic (driven by content, no cap), a repeating
+     pattern is what keeps the paper texture from distorting. */
+  background-image: url("./assets/parchment-light.png");
+  background-repeat: repeat;
+
+  /* Asymmetrical corners read as a real, hand-cut piece of paper
+     rather than a uniform UI card. */
+  border-radius: 6px 15px 8px 12px;
+
+  /* Burnt, darkened inner edges plus an outer drop shadow for lift. */
+  box-shadow:
+    inset 0 0 50px rgba(100, 60, 20, 0.7),
+    inset 0 0 20px rgba(60, 30, 0, 0.9),
+    10px 15px 25px rgba(0, 0, 0, 0.6);
+
+  animation: parchment-appear 1.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes parchment-appear {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.letter-body {
+  font-family: "Kultum Ramadhan", cursive;
+  font-size: clamp(1.15rem, 2.4vw, 1.6rem);
+  font-weight: 400;
+  line-height: 1.9;
+  color: #2c1e16;
+  text-shadow: 0px 1px 1px rgba(255, 255, 255, 0.3);
+
+  /* Honors the line breaks already written into the letter text
+     (blank lines / \n) as real breaks, while still wrapping and
+     collapsing runs of spaces normally. */
+  white-space: pre-line;
+}
+
+.letter-body h2 {
+  font-size: clamp(1.4rem, 3vw, 2rem);
+  font-weight: 400;
+  text-align: center;
+  letter-spacing: 0.02em;
+  margin-bottom: 1.2rem;
+}
+
+.letter-body p {
+  margin-bottom: 1rem;
+}
+
+.letter-body p:last-child {
+  margin-bottom: 0;
+}
+
+.letter-signature {
+  font-family: "Mrs Saint Delafield", cursive;
+  font-size: clamp(1.8rem, 4vw, 2.6rem);
+  color: #2c1e16;
+  text-align: right;
+  margin-top: 2rem;
+  text-shadow: 0px 1px 1px rgba(255, 255, 255, 0.3);
+  white-space: pre-line;
+}
+
+/* ---------- .theme-dark modifier (serpente/ladrone — the "evil" letters) ---------- */
+/* Needs .theme-dark stacked with :not(.hidden) to out-specificity
+   the white scrim set on the base #view-letter:not(.hidden) rule. */
+#view-letter.theme-dark:not(.hidden) {
+  /* The shorthand resets background-attachment to its default unless
+     restated here too — must stay "local" or the scrim goes back to
+     only covering the viewport instead of the full scrollable letter. */
+  background: radial-gradient(
+      ellipse at center,
+      rgba(20, 0, 30, 0.55) 0%,
+      rgba(5, 0, 10, 0.92) 100%
+    )
+    local;
+}
+
+#view-letter.theme-dark .parchment-container {
+  /* Longhand, not the `background` shorthand — keeps background-repeat
+     from the base rule instead of silently resetting it to no-repeat. */
+  background-image: url("./assets/parchment-dark.png");
+  box-shadow:
+    inset 0 0 60px rgba(0, 0, 0, 0.9),
+    inset 0 0 25px rgba(0, 0, 0, 1),
+    10px 15px 25px rgba(0, 0, 0, 0.8);
+}
+
+#view-letter.theme-dark .letter-body,
+#view-letter.theme-dark .letter-signature {
+  color: #e6d5b8;
+  text-shadow: 0 0 8px rgba(150, 200, 150, 0.3);
+}
+
+/* ============================================================
+   Reduced motion
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  .sprite,
+  .next-indicator.is-visible,
+  .portrait-warning__icon,
+  .parchment-container,
+  .dialogue-box.is-shaking,
+  .intro-title,
+  .intro-subtitle,
+  .intro-prompt {
+    animation: none;
+  }
+}

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Decreto Reale di Agrabah</title>
+
+  <!-- Atmospheric typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Aladin&family=Cinzel:wght@500;600;700&family=Cinzel+Decorative:wght@700&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Mrs+Saint+Delafield&display=swap"
+    rel="stylesheet"
+  />
+
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <!-- Shown only in portrait; hidden in landscape via media query -->
+  <div id="portrait-warning">
+    <div class="portrait-warning__inner">
+      <div class="portrait-warning__icon" aria-hidden="true">⟳</div>
+      <p>Ruota il dispositivo in orizzontale per rivelare il messaggio.</p>
+    </div>
+  </div>
+
+  <!-- The entire experience lives here -->
+  <main id="app-container">
+
+    <!-- TITLE SCREEN (default view on load) -->
+    <section id="view-intro" class="view">
+      <div class="intro-container">
+        <h1 class="intro-title">Sultanato di Mudnha</h1>
+        <h2 class="intro-subtitle">Anno 2026</h2>
+        <p class="intro-quote">Lontano da dove la nostra storia inizierà...</p>
+      </div>
+      <p class="intro-prompt">Clicca per entrare...</p>
+    </section>
+
+    <!-- DIALOGUE VIEW -->
+    <section id="view-dialogue" class="view hidden">
+      <div class="vignette" aria-hidden="true"></div>
+
+      <img
+        id="messenger-sprite"
+        class="sprite is-hidden"
+        src="./assets/messenger-sprite.png"
+        data-alt-src="./assets/messaggero-2.png"
+        alt="Un messaggero reale"
+        draggable="false"
+      />
+
+      <div id="dialogue-box" class="dialogue-box">
+        <p id="dialogue-text" class="dialogue-box__text"></p>
+        <span id="next-indicator" class="next-indicator" aria-hidden="true"></span>
+      </div>
+    </section>
+
+    <!-- LETTER VIEW -->
+    <section id="view-letter" class="view hidden">
+      <div class="parchment-container">
+        <div class="letter-content-wrapper"></div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Looping ambience. Autoplay-with-sound is blocked by browsers
+       until the first user gesture; script.js handles that fallback. -->
+  <audio id="bg-music" src="./assets/Arabian%20Nights.mp3" loop preload="auto"></audio>
+
+  <!-- Name-declared stings. Real files not downloaded yet, so both
+       point at an existing track and script.js clips them to their
+       first 3 seconds as a stand-in. Swap the src for the real
+       "evil laughter" / "epic trumpet" files once you have them. -->
+  <audio id="sfx-evil" src="./assets/evil-laugh.mp3" preload="auto"></audio>
+  <audio id="sfx-good" src="./assets/royal-trumpet.mp3" preload="auto"></audio>
+
+  <script src="./script.js" type="module"></script>
+</body>
+</html>
