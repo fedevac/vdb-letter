@@ -20,7 +20,8 @@ const DIALOGUE_LINES = Object.freeze([
 const TYPE_SPEED_MS = 32; // per-character delay while typing
 const FADE_DURATION_MS = 1400; // must match --fade-duration in style.css
 const ERROR_DISPLAY_MS = 2600; // how long the "name not found" state lingers
-const SPRITE_SWAP_FADE_MS = 150; // each half (out/in) of the portrait swap
+const LOADING_FADE_MS = 800; // must match .loading-screen's opacity transition
+const LOADING_SAFETY_TIMEOUT_MS = 12000; // reveal anyway if loading never settles
 
 /**
  * letterContents
@@ -339,25 +340,12 @@ class DialogueController {
   }
 
   /**
-   * Swap the messenger portrait each time the player clicks to
-   * advance — fades out fast, swaps the src, then fades back in.
+   * Swap the messenger portrait each time the player clicks to advance.
    */
   _toggleSprite() {
     if (!this._spriteSrcs || !this._spriteSrcs[1]) return;
-    const sprite = this.sprite;
-
-    sprite.classList.add("is-swap-fading"); // fast transition, for both halves
-    sprite.classList.add("is-hidden"); // fade out
-
-    setTimeout(() => {
-      this._spriteToggled = !this._spriteToggled;
-      sprite.src = this._spriteToggled ? this._spriteSrcs[1] : this._spriteSrcs[0];
-      sprite.classList.remove("is-hidden"); // fade back in
-
-      setTimeout(() => {
-        sprite.classList.remove("is-swap-fading"); // restore default duration
-      }, SPRITE_SWAP_FADE_MS);
-    }, SPRITE_SWAP_FADE_MS);
+    this._spriteToggled = !this._spriteToggled;
+    this.sprite.src = this._spriteToggled ? this._spriteSrcs[1] : this._spriteSrcs[0];
   }
 
   async _advance() {
@@ -628,6 +616,36 @@ function initIntroScreen(onEnter) {
   introView.addEventListener("click", handleClick);
 }
 
+/* ============================================================
+   Loading Screen
+   ------------------------------------------------------------
+   Waits for both the window's "load" event (images, the <link
+   rel="preload"> assets, stylesheets, scripts) and web fonts, then
+   fades the cover out. A safety timeout guarantees it never gets
+   stuck forever if something is unusually slow to settle.
+   ============================================================ */
+function initLoadingScreen() {
+  const loadingScreen = document.getElementById("loading-screen");
+  if (!loadingScreen) return;
+
+  const whenWindowLoaded = new Promise((resolve) => {
+    if (document.readyState === "complete") resolve();
+    else window.addEventListener("load", () => resolve(), { once: true });
+  });
+
+  const whenFontsReady = document.fonts ? document.fonts.ready : Promise.resolve();
+
+  const whenReady = Promise.race([
+    Promise.all([whenWindowLoaded, whenFontsReady]),
+    new Promise((resolve) => setTimeout(resolve, LOADING_SAFETY_TIMEOUT_MS)),
+  ]);
+
+  whenReady.then(() => {
+    loadingScreen.classList.add("is-hidden");
+    setTimeout(() => loadingScreen.remove(), LOADING_FADE_MS);
+  });
+}
+
 /* ---------- Small utilities ---------- */
 
 function wait(ms) {
@@ -640,10 +658,9 @@ function wait(ms) {
 const views = new ViewManager();
 
 document.addEventListener("DOMContentLoaded", () => {
+  // Alt portrait is preloaded via <link rel="preload"> in the head now,
+  // so it's already covered by the loading screen's own wait.
   const sprite = document.getElementById("messenger-sprite");
-  if (sprite?.dataset.altSrc) {
-    new Image().src = sprite.dataset.altSrc; // preload so the first swap is instant
-  }
 
   const dialogue = new DialogueController({
     root: document.getElementById("view-dialogue"),
@@ -657,6 +674,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   initIntroScreen(() => dialogue.start());
   initBackgroundMusic();
+  initLoadingScreen();
 });
 
 // Exposed for the next iteration (intro routing, letter interactions).
